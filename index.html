@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.css">
+    <title>DPS Calculator</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            margin-top: 100px;
+        }
+
+        p, label {
+            color: white;
+        }
+        #weapon-stats,input{
+            background-color: blanchedalmond !important;
+        }
+        ::placeholder {
+            display: block;
+            text-align: center;
+            line-height: 400px;
+        }
+
+
+    </style>
+</head>
+<body>
+<main id="app" class="container">
+    <div class="row">
+        <div class="col-md-5 col-lg-offset-2 card p-0 shadow">
+            <div class="card-header text-center">Copy your weapon stats in that window !</div>
+            <div class="card-body">
+                <div class="form-group h-45">
+                    <!--<label for="weapon-stats">Copy your weapon stats in that window !</label>-->
+                    <textarea class="form-control" id="weapon-stats" rows="20" v-model="weaponStatString" @input="hydrateStats" placeholder="Ctrl+V your weapon stats here"></textarea>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="form-group">
+                    <button id="reset-weapon" class="btn btn-primary btn-block" v-on:click="reset('weapon')">Reset</button>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-5 offset-md-1 my-4 my-md-0 card p-0 shadow">
+            <div class="card-header text-center">Stats to Craft</div>
+            <fieldset class="card-body vertical-align">
+                <div class="form-group">
+                    <label for="vmin-flat-phys" class="">Enter min phys role</label>
+                    <input type="number" id="vmin-flat-phys" class="form-control" v-model.number="weaponCraftObj.minPhys"
+                           @input="craftDpsCalc" value="0"><br/>
+                </div>
+                <div class="form-group">
+                    <label for="vmax-flat-phys" class="">Enter max flat phys</label>
+                    <input type="number" id="vmax-flat-phys" class="form-control" v-model.number="weaponCraftObj.maxPhys"
+                           @input="craftDpsCalc"><br/>
+                </div>
+                <div class="form-group">
+                    <label for="inc-phys-damage" class="">Enter % increased phys damage</label>
+                    <input type="number" id="inc-phys-damage" class="form-control" v-model.number="weaponCraftObj.physPourcent"
+                           @input="craftDpsCalc"><br/>
+                </div>
+                <div class="form-group">
+                    <label for="inc-phys-damage" class="">Enter % Quality</label>
+                    <input type="number" id="inc-phys-quality" class="form-control"
+                           v-model.number="weaponCraftObj.weaponQuality" @input="craftDpsCalc"><br/>
+                </div>
+                <div class="form-group">
+                    <label for="inc-attk-speed" class="">Enter increased attack speed %</label>
+                    <input type="number" id="inc-attk-speed" class="form-control"
+                           v-model.number="weaponCraftObj.attkSpeedPourcent" @input="craftDpsCalc"><br/>
+                </div>
+                <div class="form-group">
+                    <button id="reset-craft" class="btn btn-primary btn-block" v-on:click="reset('craft')" >Reset</button>
+                </div>
+            </fieldset>
+            <div class="card-footer">
+                <h3>Weapon dps : {{weaponDps}}</h3>
+                <h3>Weapon Dps after Craft : {{weaponDpsAfterCraft}} </h3>
+            </div>
+            </div>
+
+    </div>
+
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            weaponDps: 0,
+            weaponDpsAfterCraft: 0,
+            weaponStatString: '',
+            weaponStatsObj: {
+                weaponQuality: 0,
+                minPhys: 0,
+                maxPhys: 0,
+                attkSpeed: 0,
+                physPourcent: 0
+            },
+            weaponCraftObj: {
+                weaponQuality: 0,
+                minPhys: 0,
+                maxPhys: 0,
+                attkSpeedPourcent: 0,
+                physPourcent: 0
+            }
+        },
+        methods: {
+            hydrateStats() {
+                try {
+                    var physDmgRegex = /(Physical Damage:)\s*(\s*[0-9]+\s*[-]{1}\s*[0-9]+\s*)/;
+                    var attkSpeedRegex = /(Attacks per Second:)\s*([0-9]+.?[0-9]+)/;
+                    var attkSpeedPourcentRegex = /([0-9]+)%{1}\s*(increased Attack Speed)/;
+                    var physPourcentRegex = /([0-9]+)%{1}\s*(increased Physical Damage)/;
+                    var qualityRegex = /(Quality:\s*\+)\s*([0-9]+)/;
+
+                    let physDmg = this.weaponStatString.match(physDmgRegex);
+                    var attkSpeed = this.weaponStatString.match(attkSpeedRegex);
+                    var attkSpeedPourcent = this.weaponStatString.match(attkSpeedPourcentRegex);
+                    var physPourcent = this.weaponStatString.match(physPourcentRegex);
+                    var quality = this.weaponStatString.match(qualityRegex);
+
+                    var minMax = physDmg[2].split('-');
+                    this.weaponStatsObj.minPhys = Number(minMax[0]);
+                    this.weaponStatsObj.maxPhys = Number(minMax[1]);
+                    this.weaponStatsObj.attkSpeed = Number(attkSpeed[2]);
+
+                    this.weaponStatsObj.attkSpeedPourcent = (attkSpeedPourcent != null) ? Number(attkSpeedPourcent[1]) : 0;
+                    this.weaponStatsObj.physPourcent = (physPourcent != null) ? Number(physPourcent[1]) : 0;
+                    this.weaponStatsObj.weaponQuality = (quality != null) ? Number(quality[2]) : 0;
+
+                    this.weaponDps = this.dpsCalc(false);
+                } catch ($e) {
+                    console.log('there was an error , check your weapon is correctly pasted', $e);
+                }
+            },
+
+            dpsCalc(isCrafted) {
+                let weaponCraftObj = {};
+                if (!isCrafted) {
+                    for (let prop in this.weaponCraftObj) {
+                        if(this.weaponCraftObj.hasOwnProperty(prop)){
+                            weaponCraftObj[prop] = 0;
+                        }
+                    }
+                } else {
+                    weaponCraftObj = this.weaponCraftObj;
+                }
+
+                var totalPhysPourcent = 1 + ((this.weaponStatsObj.weaponQuality + this.weaponStatsObj.physPourcent) / 100);
+                var totalCraftPhysPourcent = ((this.weaponCraftObj.weaponQuality + weaponCraftObj.physPourcent) / 100);
+
+                var baseAttkSpeed = this.weaponStatsObj.attkSpeed / (1 + this.weaponStatsObj.attkSpeedPourcent / 100);
+                var totalAttkSpeedPourcent = 1 + (this.weaponStatsObj.attkSpeedPourcent + weaponCraftObj.attkSpeedPourcent) / 100;
+                var totalWeaponAttackSpeed = baseAttkSpeed * totalAttkSpeedPourcent;
+
+                var minPhys = (this.weaponStatsObj.minPhys / totalPhysPourcent) + weaponCraftObj.minPhys;
+                var maxPhys = (this.weaponStatsObj.maxPhys / totalPhysPourcent) + weaponCraftObj.maxPhys;
+
+                var combinePourcent = totalPhysPourcent + totalCraftPhysPourcent;
+
+                return Math.round((((minPhys * combinePourcent) + (maxPhys * combinePourcent)) / 2) * totalWeaponAttackSpeed);
+            },
+
+            craftDpsCalc(e) {
+                this.weaponDpsAfterCraft = this.dpsCalc(true);
+            },
+            reset(stat) {
+
+                switch(stat){
+                    case 'weapon':
+                        this.weaponStatString = '';
+                        for (prop in this.weaponStatsObj) {
+                            if (this.weaponStatsObj.hasOwnProperty(prop)) {
+                                this.weaponStatsObj[prop] = 0;
+                            }
+                        }
+                        this.weaponDps = 0;
+                        break;
+                    case 'craft':
+                        for (prop in this.weaponCraftObj) {
+                            if (this.weaponCraftObj.hasOwnProperty(prop)) {
+                                this.weaponCraftObj[prop] = 0;
+                            }
+                        }
+                        this.weaponDpsAfterCraft = 0;
+                        break;
+                }
+            }
+        }
+    })
+
+</script>
+</body>
+</html>
