@@ -5,6 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Path of exile Weapon DPS Calculator for weapon Crafting">
     <link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.css">
     <title>DPS Calculator</title>
     <style>
@@ -39,7 +40,6 @@
             <div class="card-header text-center">Copy your weapon stats in that window !</div>
             <div class="card-body">
                 <div class="form-group h-45">
-                    <!--<label for="weapon-stats">Copy your weapon stats in that window !</label>-->
                     <textarea class="form-control" id="weapon-stats" rows="20" v-model="weaponStatString" @input="hydrateStats" placeholder="Ctrl+V your weapon stats here"></textarea>
                 </div>
             </div>
@@ -52,31 +52,33 @@
         </div>
         <div class="col-md-5 offset-md-1 my-4 my-md-0 card p-0 shadow">
             <div class="card-header text-center">Stats to Craft</div>
+            <small class="form-text text-muted block m-auto pt-2">Only change value that you aim to craft, leave to 0 if you are not going to craft it.</small>
             <fieldset class="card-body vertical-align">
                 <div class="form-group">
                     <label for="vmin-flat-phys" class="">Enter min phys role</label>
                     <input type="number" id="vmin-flat-phys" class="form-control" v-model.number="weaponCraftObj.minPhys"
-                           @input="craftDpsCalc" value="0"><br/>
+                           @input="craftDpsCalc" value="0">
                 </div>
                 <div class="form-group">
                     <label for="vmax-flat-phys" class="">Enter max flat phys</label>
                     <input type="number" id="vmax-flat-phys" class="form-control" v-model.number="weaponCraftObj.maxPhys"
-                           @input="craftDpsCalc"><br/>
+                           @input="craftDpsCalc">
                 </div>
                 <div class="form-group">
                     <label for="inc-phys-damage" class="">Enter % increased phys damage</label>
                     <input type="number" id="inc-phys-damage" class="form-control" v-model.number="weaponCraftObj.physPourcent"
-                           @input="craftDpsCalc"><br/>
+                           @input="craftDpsCalc">
                 </div>
                 <div class="form-group">
-                    <label for="inc-phys-damage" class="">Enter % Quality</label>
-                    <input type="number" id="inc-phys-quality" class="form-control"
-                           v-model.number="weaponCraftObj.weaponQuality" @input="craftDpsCalc"><br/>
+                    <label for="inc-quality" class="">Enter % Quality</label>
+                    <input type="number" id="inc-quality" class="form-control"
+                           v-model.number="weaponCraftObj.weaponQuality" @input="craftDpsCalc">
+                    <small class="form-text text-muted pt-0">This quality is added to the weapon quality you copy/pasted if there is already some.</small>
                 </div>
                 <div class="form-group">
                     <label for="inc-attk-speed" class="">Enter increased attack speed %</label>
                     <input type="number" id="inc-attk-speed" class="form-control"
-                           v-model.number="weaponCraftObj.attkSpeedPourcent" @input="craftDpsCalc"><br/>
+                           v-model.number="weaponCraftObj.attkSpeedPourcent" @input="craftDpsCalc">
                 </div>
                 <div class="form-group">
                     <button id="reset-craft" class="btn btn-primary btn-block" v-on:click="reset('craft')" >Reset</button>
@@ -87,11 +89,9 @@
                 <h3>Weapon Dps after Craft : {{weaponDpsAfterCraft}} </h3>
             </div>
             </div>
-
     </div>
-
-
 </main>
+<footer class="text-center m-5"><small class="text-muted text-center">This website is not affiliated with Grinding Gear Game.</small></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
