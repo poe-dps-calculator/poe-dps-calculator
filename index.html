@@ -99,13 +99,13 @@
                     <input type="number" id="inc-attk-speed" class="form-control"
                            v-model.number="weaponCraftObj.attkSpeedPourcent" @input="craftDpsCalc">
                 </div>
-                <div class="form-group">
-                    <button id="reset-craft" class="btn btn-primary btn-block" v-on:click="reset('craft')" >Reset</button>
-                </div>
             </fieldset>
             <div class="card-footer">
                 <h3>Weapon dps : {{weaponDps}}</h3>
                 <h3>Weapon Dps after Craft : {{weaponDpsAfterCraft}} </h3>
+                <div class="form-group mt-3">
+                    <button id="reset-craft" class="btn btn-primary btn-block" v-on:click="reset('craft')" >Reset</button>
+                </div>
             </div>
             </div>
     </div>
